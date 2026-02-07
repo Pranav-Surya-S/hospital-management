@@ -1,0 +1,295 @@
+:root {
+  --main: #0f766e;
+  --dark: #111827;
+  --light: #f3f4f6;
+  --red: #b91c1c;
+}
+body {
+  font-family: "Segoe UI", sans-serif;
+  margin: 0;
+  background: var(--light);
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* LOGIN */
+#login-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--dark);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+.login-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 350px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+.input-group {
+  text-align: left;
+  margin-bottom: 15px;
+}
+.input-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+.pass-wrapper {
+  position: relative;
+}
+.toggle-pass {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%); /* Centered better */
+  cursor: pointer;
+  color: #6b7280;
+  user-select: none;
+}
+.toggle-pass:hover {
+  color: var(--main);
+}
+.login-card button {
+  width: 100%;
+  padding: 12px;
+  background: var(--main);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 10px;
+}
+.hint {
+  margin-top: 20px;
+  color: #6b7280;
+  font-size: 0.8rem;
+  background: #f9fafb;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+/* DASHBOARD */
+#dashboard-screen {
+  display: flex;
+  height: 100vh;
+}
+.sidebar {
+  width: 250px;
+  background: var(--dark);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+.sidebar h3 {
+  color: #2dd4bf;
+  margin-top: 0;
+}
+.user-badge {
+  background: #374151;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  color: #d1d5db;
+}
+/* Updated Sidebar Button Styles for Icons */
+.sidebar nav button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: #9ca3af;
+  padding: 12px 10px;
+  cursor: pointer;
+  font-size: 15px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+.sidebar nav button:hover {
+  background: #374151;
+  color: white;
+}
+.sidebar .material-icons {
+  font-size: 20px;
+}
+
+.logout-btn {
+  margin-top: auto;
+  background: var(--red);
+  border: none;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.content {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+}
+.tab-content {
+  display: none;
+}
+.tab-content.active {
+  display: block;
+}
+
+/* TABLES */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+th {
+  background: #f9fafb;
+  text-align: left;
+  padding: 15px;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+}
+td {
+  padding: 15px;
+  border-bottom: 1px solid #f3f4f6;
+  color: #4b5563;
+  vertical-align: middle;
+}
+
+/* BUTTONS */
+.action-btn {
+  background: var(--main);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.del-btn {
+  background: #fee2e2;
+  color: var(--red);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.del-btn:hover {
+  background: var(--red);
+  color: white;
+}
+
+/* MODALS */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  backdrop-filter: blur(2px);
+}
+.modal.open {
+  display: flex;
+}
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 400px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+.modal input,
+.modal select {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.modal-actions button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.modal-actions button[type="submit"] {
+  background: var(--main);
+  color: white;
+}
+.cancel {
+  background: #e5e7eb;
+  color: var(--dark);
+}
+
+#login-screen.hidden {
+  display: none;
+}
+
+/* Table Password Cell */
+.pass-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: monospace;
+  font-size: 1.1em;
+  min-width: 120px;
+}
+
+/* Reusing the class from Login, but adjusting for table context */
+.table-eye {
+  position: static;
+  transform: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #9ca3af;
+  margin-left: 10px;
+  user-select: none;
+}
+.table-eye:hover {
+  color: var(--main);
+}

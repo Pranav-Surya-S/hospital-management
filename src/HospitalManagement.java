@@ -1,134 +1,151 @@
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
-import java.sql.ResultSet;
 
 public class HospitalManagement {
-    private static final String url = "jdbc:mysql://localhost:3306/hospital";
-    private static final String username = "root";
-    private static final String password = "antU@7548";
-
-    public static void main(String args[]) {
+    
+    public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        Connection connection = null;
-        try {
-            // Establish the connection
-            connection = DriverManager.getConnection(url, username, password);
-            System.out.println("Connection successful!");
+        Connection connection = DbConnection.getConnection();
+        
+        if (connection == null) {
+            System.out.println("Failed to connect to Database.");
+            return;
+        }
 
-            Patient patient = new Patient(connection, scanner);
-            Doctors doctor = new Doctors(connection);
+        System.out.println("--- HOSPITAL MANAGEMENT SYSTEM LOGIN ---");
+        // Login Logic
+        String userRole = login(connection, scanner);
+        
+        if (userRole == null) {
+            System.out.println("Invalid Username or Password. Exiting.");
+            return;
+        }
 
-            while (true) {
-                System.out.println("HOSPITAL MANAGEMENT SYSTEM");
-                System.out.println("1. Add Patient");
-                System.out.println("2. View Patients");
-                System.out.println("3. View Doctors");
-                System.out.println("4. Book Appointment");
-                System.out.println("5. Exit");
-                System.out.print("Enter your choice: ");
-                int choice = scanner.nextInt();
+        System.out.println("Login Successful! Welcome, " + userRole);
 
-                switch (choice) {
-                    case 1:
-                        // Add patient
-                        patient.addPatient();
-                        System.out.println();
-                        break;
-                    case 2:
-                        // View patients
-                        patient.viewPatients();
-                        System.out.println();
-                        break;
-                    case 3:
-                        // View doctors
-                        doctor.viewDoctors();
-                        System.out.println();
-                        break;
-                    case 4:
-                        // Book appointment
-                        bookAppointment(patient, doctor, connection, scanner);
-                        System.out.println();
-                        break;
-                    case 5:
-                        connection.close();
-                        System.out.println("Connection closed!");
-                        scanner.close();
-                        return;
-                    default:
-                        System.out.println("Invalid choice!");
-                }
+        Patient patient = new Patient(connection, scanner);
+        Doctors doctor = new Doctors(connection, scanner);
+
+        while (true) {
+            System.out.println("\n--- MAIN MENU ---");
+            System.out.println("1. Add Patient");
+            System.out.println("2. View Patients");
+            System.out.println("3. View Doctors");
+            System.out.println("4. Book Appointment");
+            
+            // Only Admin can add doctors
+            if (userRole.equals("ADMIN")) {
+                System.out.println("5. Add Doctor (ADMIN ONLY)");
+            }
+            
+            System.out.println("0. Exit");
+            System.out.print("Enter your choice: ");
+            
+            int choice = -1;
+            if(scanner.hasNextInt()) {
+                choice = scanner.nextInt();
+            } else {
+                scanner.next(); // Clear invalid input
             }
 
-            // Close the connection
-        } catch (SQLException e) {
-            System.out.println("Connection failed: " + e.getMessage());
-        } finally {
-            // Ensure the connection is closed in case of an exception
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    System.out.println("Failed to close connection: " + e.getMessage());
-                }
+            switch (choice) {
+                case 1:
+                    patient.addPatient();
+                    break;
+                case 2:
+                    patient.viewPatients();
+                    break;
+                case 3:
+                    doctor.viewDoctors();
+                    break;
+                case 4:
+                    bookAppointment(patient, doctor, connection, scanner);
+                    break;
+                case 5:
+                    if (userRole.equals("ADMIN")) {
+                        doctor.addDoctor();
+                    } else {
+                        System.out.println("Access Denied.");
+                    }
+                    break;
+                case 0:
+                    System.out.println("Exiting System.");
+                    return;
+                default:
+                    System.out.println("Invalid choice!");
             }
-            scanner.close();
         }
     }
 
+    // Login Method
+    private static String login(Connection connection, Scanner scanner) {
+        System.out.print("Username: ");
+        String username = scanner.next();
+        System.out.print("Password: ");
+        String password = scanner.next();
+
+        String query = "SELECT role FROM users WHERE username = ? AND password = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("role"); // Returns 'ADMIN' or 'USER'
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static void bookAppointment(Patient patient, Doctors doctor, Connection connection, Scanner scanner) {
-        System.out.print("Enter patient ID: ");
+        System.out.print("Enter Patient ID: ");
         int patientId = scanner.nextInt();
-        System.out.print("Enter doctor ID: ");
+        System.out.print("Enter Doctor ID: ");
         int doctorId = scanner.nextInt();
-        System.out.print("Enter appointment date (YYYYY-MM-DD): ");
+        System.out.print("Enter Appointment Date (YYYY-MM-DD): ");
         String appointmentDate = scanner.next();
 
         if (patient.getPatientById(patientId) && doctor.getDoctorById(doctorId)) {
             if (checkDoctorAvailability(doctorId, appointmentDate, connection)) {
-                String appointmentQuery = "INSERT INTO appointments (patient_id, doctor_id, appointment_date) VALUES (?, ?, ?)";
-                
+                String query = "INSERT INTO appointments(patient_id, doctor_id, appointment_date) VALUES(?, ?, ?)";
                 try {
-                    PreparedStatement preparedStatement = connection.prepareStatement(appointmentQuery);
-                    preparedStatement.setInt(1, patientId);
-                    preparedStatement.setInt(2, doctorId);
-                    preparedStatement.setString(3, appointmentDate);
-
-                    int affectedRows = preparedStatement.executeUpdate();
-                    if (affectedRows > 0) {
-                        System.out.println("Appointment booked successfully!");
+                    PreparedStatement ps = connection.prepareStatement(query);
+                    ps.setInt(1, patientId);
+                    ps.setInt(2, doctorId);
+                    ps.setString(3, appointmentDate);
+                    int rows = ps.executeUpdate();
+                    if (rows > 0) {
+                        System.out.println("Appointment Booked!");
                     } else {
-                        System.out.println("Failed to book appointment!");
+                        System.out.println("Booking Failed.");
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
+            } else {
+                System.out.println("Doctor not available on this date.");
             }
         } else {
-            System.out.println("Invalid patient ID or doctor ID!");
+            System.out.println("Invalid Patient or Doctor ID.");
         }
     }
 
-    public static boolean checkDoctorAvailability(int doctorId, String appointmentDate, Connection connection) {
+    public static boolean checkDoctorAvailability(int doctorId, String date, Connection connection) {
         String query = "SELECT COUNT(*) FROM appointments WHERE doctor_id = ? AND appointment_date = ?";
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, doctorId);
-            preparedStatement.setString(2, appointmentDate);
-
-            ResultSet resultset = preparedStatement.executeQuery();
-            if (resultset.next()) {
-                int count = resultset.getInt(1);
-                if (count == 0) {
-                    return true;
-                } else {
-                    System.out.println("Doctor is not available on the specified date!");
-                    return false;
-                }
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setInt(1, doctorId);
+            ps.setString(2, date);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                return count == 0; // Available if count is 0
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hospital Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="login-screen" class="active">
+      <div class="login-card">
+        <h2>HMS Login</h2>
+        <form onsubmit="handleLogin(event)">
+          <div class="input-group">
+            <label>Username / Doctor ID</label>
+            <input
+              type="text"
+              id="username"
+              placeholder="Enter ID or Username"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <label>Password</label>
+            <div class="pass-wrapper">
+              <input
+                type="password"
+                id="password"
+                placeholder="Enter Password"
+                required
+              />
+              <span class="material-icons toggle-pass" onclick="togglePass()"
+                >visibility</span
+              >
+            </div>
+          </div>
+          <button type="submit">Login</button>
+        </form>
+        <p id="login-err"></p>
+        <div class="hint">
+          <small>Root: root/root123 | Admin: admin/admin123</small><br />
+          <small>Doctor: (Use ID) / doc123</small>
+        </div>
+      </div>
+    </div>
+
+    <div id="dashboard-screen">
+      <aside class="sidebar">
+        <h3>HMS Panel</h3>
+        <div class="user-badge" id="user-badge">Role: ...</div>
+        <nav>
+          <button onclick="switchTab('appointments')">
+            <span class="material-icons">calendar_today</span> Appointments
+          </button>
+          <button onclick="switchTab('history')">
+            <span class="material-icons">history_edu</span> Medical History
+          </button>
+          <button onclick="switchTab('patients')" id="nav-pat">
+            <span class="material-icons">people</span> Patients
+          </button>
+          <button onclick="switchTab('doctors')" id="nav-doc">
+            <span class="material-icons">medical_services</span> Doctors
+          </button>
+          <button
+            onclick="switchTab('admins')"
+            id="nav-admin"
+            style="display: none"
+          >
+            <span class="material-icons">admin_panel_settings</span> Manage
+            Admins
+          </button>
+        </nav>
+        <button class="logout-btn" onclick="location.reload()">
+          <span class="material-icons" style="font-size: 18px">logout</span>
+          Logout
+        </button>
+      </aside>
+
+      <main class="content">
+        <section id="tab-appointments" class="tab-content active">
+          <header>
+            <h2>Appointments</h2>
+            <button
+              class="action-btn"
+              id="btn-add-appt"
+              onclick="openModal('modal-appt')"
+            >
+              + Book Appointment
+            </button>
+          </header>
+          <table id="table-appt">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Patient</th>
+                <th>Doctor</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </section>
+
+        <section id="tab-doctors" class="tab-content">
+          <header>
+            <h2>Medical Staff</h2>
+            <button
+              class="action-btn"
+              id="btn-add-doc"
+              onclick="openModal('modal-doc')"
+            >
+              + Add Doctor
+            </button>
+          </header>
+          <table id="table-doc">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </section>
+
+        <section id="tab-patients" class="tab-content">
+          <header>
+            <h2>Patient Records</h2>
+            <button class="action-btn" onclick="openModal('modal-pat')">
+              + Add Patient
+            </button>
+          </header>
+          <table id="table-pat">
+            <thead>
+              <tr>
+                <th>ID (Generated)</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </section>
+
+        <section id="tab-history" class="tab-content">
+          <header>
+            <h2>Medical Records & Prescriptions</h2>
+            <button
+              class="action-btn"
+              id="btn-add-rx"
+              onclick="openModal('modal-rx')"
+            >
+              + New Prescription
+            </button>
+          </header>
+          <table id="table-history">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </section>
+
+        <section id="tab-admins" class="tab-content">
+          <header>
+            <h2>System Administrators</h2>
+            <button class="action-btn" onclick="openModal('modal-admin')">
+              + Create Admin
+            </button>
+          </header>
+          <table id="table-admin">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Password</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </section>
+      </main>
+    </div>
+
+    <div id="modal-doc" class="modal">
+      <div class="modal-content">
+        <h3>Add New Doctor</h3>
+        <form onsubmit="addDoctor(event)">
+          <input type="text" id="d-name" placeholder="Name" required /><input
+            type="text"
+            id="d-spec"
+            placeholder="Specialization"
+            required
+          /><input type="text" id="d-pass" placeholder="Password" required />
+          <div class="modal-actions">
+            <button type="submit">Save</button
+            ><button type="button" class="cancel" onclick="closeModals()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div id="modal-pat" class="modal">
+      <div class="modal-content">
+        <h3>Register Patient</h3>
+        <form onsubmit="addPatient(event)">
+          <input type="text" id="p-name" placeholder="Name" required /><input
+            type="number"
+            id="p-age"
+            placeholder="Age"
+            required
+          /><select id="p-gen">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+          <div class="modal-actions">
+            <button type="submit">Save</button
+            ><button type="button" class="cancel" onclick="closeModals()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div id="modal-admin" class="modal">
+      <div class="modal-content">
+        <h3>Create Sub-Admin</h3>
+        <form onsubmit="addAdmin(event)">
+          <input
+            type="text"
+            id="a-user"
+            placeholder="Username"
+            required
+          /><input type="text" id="a-pass" placeholder="Password" required />
+          <div class="modal-actions">
+            <button type="submit">Create</button
+            ><button type="button" class="cancel" onclick="closeModals()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div id="modal-appt" class="modal">
+      <div class="modal-content">
+        <h3>Book Appointment</h3>
+        <form onsubmit="bookAppt(event)">
+          <select id="appt-pat" required>
+            <option>Loading...</option></select
+          ><select id="appt-doc" required>
+            <option>Loading...</option></select
+          ><input type="date" id="appt-date" required />
+          <div class="modal-actions">
+            <button type="submit">Book</button
+            ><button type="button" class="cancel" onclick="closeModals()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div id="modal-rx" class="modal">
+      <div class="modal-content">
+        <h3>Write Prescription</h3>
+        <form onsubmit="addTreatment(event)">
+          <select id="rx-pat" required>
+            <option>Loading Patients...</option></select
+          ><input
+            type="text"
+            id="rx-diag"
+            placeholder="Diagnosis (e.g. Viral Fever)"
+            required
+          /><textarea
+            id="rx-desc"
+            placeholder="Rx: Medicine Name, Dosage, Advice..."
+            rows="4"
+            style="width: 100%; margin: 10px 0; padding: 10px"
+            required
+          ></textarea>
+          <div class="modal-actions">
+            <button type="submit">Prescribe</button
+            ><button type="button" class="cancel" onclick="closeModals()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="modal-edit-doc" class="modal">
+      <div class="modal-content">
+        <h3>Edit Doctor</h3>
+        <form onsubmit="updateDoctor(event)">
+          <input type="hidden" id="edit-doc-id" /><input
+            type="text"
+            id="edit-doc-name"
+            placeholder="Name"
+            required
+          /><input
+            type="text"
+            id="edit-doc-spec"
+            placeholder="Specialization"
+            required
+          /><input
+            type="text"
+            id="edit-doc-pass"
+            placeholder="Password"
+            required
+          />
+          <div class="modal-actions">
+            <button type="submit">Update</button
+            ><button type="button" class="cancel" onclick="closeModals()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div id="modal-edit-pat" class="modal">
+      <div class="modal-content">
+        <h3>Edit Patient</h3>
+        <form onsubmit="updatePatient(event)">
+          <input type="hidden" id="edit-pat-id" /><input
+            type="text"
+            id="edit-pat-name"
+            placeholder="Name"
+            required
+          /><input
+            type="number"
+            id="edit-pat-age"
+            placeholder="Age"
+            required
+          /><select id="edit-pat-gen">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+          <div class="modal-actions">
+            <button type="submit">Update</button
+            ><button type="button" class="cancel" onclick="closeModals()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div id="modal-edit-admin" class="modal">
+      <div class="modal-content">
+        <h3>Edit Admin</h3>
+        <form onsubmit="updateAdmin(event)">
+          <input type="hidden" id="edit-admin-id" /><input
+            type="text"
+            id="edit-admin-user"
+            placeholder="Username"
+            required
+          /><input
+            type="text"
+            id="edit-admin-pass"
+            placeholder="Password"
+            required
+          />
+          <div class="modal-actions">
+            <button type="submit">Update</button
+            ><button type="button" class="cancel" onclick="closeModals()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div id="modal-edit-appt" class="modal">
+      <div class="modal-content">
+        <h3>Edit Appointment</h3>
+        <form onsubmit="updateAppointment(event)">
+          <input type="hidden" id="edit-appt-id" /><label>Patient</label
+          ><select id="edit-appt-pat" required>
+            <option>Loading...</option></select
+          ><label>Doctor</label
+          ><select id="edit-appt-doc" required>
+            <option>Loading...</option></select
+          ><label>Date</label><input type="date" id="edit-appt-date" required />
+          <div class="modal-actions">
+            <button type="submit">Update</button
+            ><button type="button" class="cancel" onclick="closeModals()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div id="modal-edit-rx" class="modal">
+      <div class="modal-content">
+        <h3>Edit Medical Record</h3>
+        <form onsubmit="updateTreatment(event)">
+          <input type="hidden" id="edit-rx-id" /><label>Diagnosis</label
+          ><input type="text" id="edit-rx-diag" required /><label
+            >Prescription</label
+          ><textarea
+            id="edit-rx-desc"
+            rows="4"
+            style="width: 100%; margin: 10px 0; padding: 10px"
+            required
+          ></textarea
+          ><label>Date & Time</label
+          ><input type="datetime-local" id="edit-rx-date" required />
+          <div class="modal-actions">
+            <button type="submit">Update Record</button
+            ><button type="button" class="cancel" onclick="closeModals()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
