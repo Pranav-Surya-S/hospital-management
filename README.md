@@ -1,3 +1,5 @@
+# [OUTDATED - INCORRECT: WILL UPDATE SOON DO NOT READ THE BELOW]
+
 # Hospital Management System (Java & MySQL)
 
 ## Overview
